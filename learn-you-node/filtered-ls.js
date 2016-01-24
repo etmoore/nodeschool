@@ -1,11 +1,12 @@
 const fs = require('fs');
+const path = require('path');
 
-var path = process.argv[2];
+var dir = process.argv[2];
 var extension = process.argv[3];
 
-fs.readdir(path, (err, files) => {
+fs.readdir(dir, (err, files) => {
   var targetFiles = files.filter((file) => {
-    return file.split('.')[1] === extension;
+    return path.extname(file) === "." + extension;
   });
   console.log(targetFiles.join('\n'));
 });
