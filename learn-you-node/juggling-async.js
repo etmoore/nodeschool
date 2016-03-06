@@ -1,7 +1,7 @@
 var http = require('http');
-var bl = require('bl');
 var results = [];
 var count = 0;
+var urls = process.argv.slice(2, process.argv.length);
 
 function printResults() {
   results.forEach((result)=> {
@@ -9,23 +9,20 @@ function printResults() {
   });
 }
 
-function httpGet(index) {
-  http.get(process.argv[2 + index], function(response) {
-    response.pipe(bl(function(err, data) {
-      if (err) {
-        return console.error(err)
-      }
-
-      results[index] = data.toString();
+urls.forEach((url, index)=> {
+  http.get(url, (res)=> {
+    var pageContent = '';
+    res.setEncoding('utf-8');
+    res.on('error', console.error);
+    res.on('data', (data)=> {
+      pageContent += data;
+    });
+    res.on('end', ()=> {
+      results[index] = pageContent;
       count++;
-
-      if (count == 3) {
+      if (count === urls.length) {
         printResults();
       }
-    }));
+    });
   });
-}
-
-for (var i = 0; i < 3; i++) {
-  httpGet(i);
-}
+});
