@@ -32,36 +32,34 @@ const http = require('http');
 
 const port = process.argv[2];
 
+function parseTime(dateObject){
+  let timeObject = {};
+  timeObject.hour = dateObject.getHours();
+  timeObject.minute = dateObject.getMinutes();
+  timeObject.second = dateObject.getSeconds();
+  return timeObject;
+}
+
+function parseUnixTime(dateObject){
+  let timeObject = {};
+  timeObject.unixtime = dateObject.getTime();
+  return timeObject;
+}
+
 const server = http.createServer((req, res) => {
   let parsedUrl = url.parse(req.url, true);
-  console.log(parsedUrl);
+  let dateObject = new Date(parsedUrl.query.iso);
 
   // parsetime route
   if (parsedUrl.pathname == '/api/parsetime'){
-    // grab the time from the query property
-    let dateString = parsedUrl.query.iso;
-    let dateObject = new Date(dateString);
-    let timeObject = {};
-    // create an object with the hour, minute, and second properties
-    timeObject.hour = dateObject.getHours();
-    timeObject.minute = dateObject.getMinutes();
-    timeObject.second = dateObject.getSeconds();
-    // create the JSON string with JSON.stringify()
-    let timeJSON = JSON.stringify(timeObject);
-    // return the JSON string in the response
-    res.end(timeJSON);
+    let timeObject = parseTime(dateObject);
+    res.end(JSON.stringify(timeObject));
   }
 
   // unixtime route
   if (parsedUrl.pathname == '/api/unixtime'){
-    let dateString = parsedUrl.query.iso;
-    let dateObject = new Date(dateString);
-    let timeObject = {};
-    timeObject.unixtime = dateObject.getTime();
-    let timeJSON = JSON.stringify(timeObject);
-    res.end(timeJSON);
+    let timeObject = parseUnixTime(dateObject);
+    res.end(JSON.stringify(timeObject));
   }
 });
 server.listen(port);
-
-// TODO: extract the routes into separate methods
